@@ -1,3 +1,10 @@
+
+ifeq ($(shell python3 --version 2> /dev/null),)
+    PYTHON = python
+else
+    PYTHON = python3
+endif
+
 lint:
 	python -m black src
 	python -m black tests
