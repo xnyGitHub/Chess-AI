@@ -1,9 +1,11 @@
-import pytest
+"""Unit-testing for src\engine\move.py"""
+# import pytest
 
-from src.engine.move import Capture, Move, Castle
+from src.engine.move import Capture, Move
 
 
 def test_class_move_repr():
+    """Test that __repr__ works as intended"""
     start_square = (0, 0)
     end_square = (1, 1)
     move_type = "Normal"
@@ -18,6 +20,7 @@ self.move_type='Normal'
 
 
 def test_class_move_instance_of_capture():
+    """Test that capture class inherits move class works as intended"""
     start_square = (0, 0)
     end_square = (1, 1)
     move_type = "Normal"
@@ -29,6 +32,7 @@ def test_class_move_instance_of_capture():
 
 
 def test_class_capture_instance_of_move():
+    """Test that capture class is NOT an instance of move class"""
     start_square = (0, 0)
     end_square = (1, 1)
     move_type = "Normal"
