@@ -20,7 +20,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
-  - repo: https://github.com/pycqa/pylint
-    rev: pylint-2.7.2
-    hooks:
       - id: pylint
+        name: pylint
+        entry: pylint
+        language: system
+        types: [python]
+        require_serial: true
