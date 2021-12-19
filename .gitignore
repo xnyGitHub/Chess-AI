@@ -1,5 +1,14 @@
+
+# [pytest files]
 .pytest_cache
+
+# [btyecode files]
 **__pycache__
 *.pyc
+
+# [personal files]
 z_playground.py
 checklist.txt
+
+# [Setup.py files]
+*.egg-info
