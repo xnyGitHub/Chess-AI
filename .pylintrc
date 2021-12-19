@@ -10,4 +10,5 @@
 # multiple time (only on the command line, not in the configuration file where
 # it should appear only once).
 #disable=
-disable=anomalous-backslash-in-string
+disable=anomalous-backslash-in-string,
+        import-error
