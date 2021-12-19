@@ -6,9 +6,7 @@ else
 endif
 
 lint:
-	$(PYTHON) -m black src
-	$(PYTHON) -m black tests
-	$(PYTHON) -m pylint src
-	$(PYTHON) -m pylint test
+	$(PYTHON) -m black src tests
+	$(PYTHON) -m pylint src tests
 test:
-	$(PYTHON) -m pytest tests -v
+	$(PYTHON) -m pytest -v
