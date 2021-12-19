@@ -12,3 +12,7 @@ checklist.txt
 
 # [Setup.py files]
 *.egg-info
+
+
+# [virtual envs]
+venv
