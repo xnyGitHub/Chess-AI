@@ -11,4 +11,7 @@
 # it should appear only once).
 #disable=
 disable=anomalous-backslash-in-string,
-        import-error
+        import-error,
+        too-few-public-methods,
+        super-init-not-called,
+        import-outside-toplevel
