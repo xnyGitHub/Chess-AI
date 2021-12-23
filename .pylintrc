@@ -15,4 +15,5 @@ disable=anomalous-backslash-in-string,
         too-few-public-methods,
         super-init-not-called,
         import-outside-toplevel,
-        no-member
+        no-member,
+        unused-variable
