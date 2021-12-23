@@ -38,4 +38,4 @@ class GameEngine:
         self.running = True
         while self.running:
             new_tick = TickEvent()
-            self.evManager.post(new_tick)
+            self.ev_manager.post(new_tick)
