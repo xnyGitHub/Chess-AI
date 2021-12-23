@@ -1,6 +1,6 @@
 """Controller class part of MVC"""
 import pygame
-from event_types import TickEvent, QuitEvent, Event
+from src.engine.event_types import TickEvent, QuitEvent, Event
 
 
 class KeyboardAndMouse:

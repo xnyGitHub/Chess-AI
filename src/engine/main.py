@@ -1,17 +1,17 @@
 """Module that connects the MVC together"""
 
-import event_manager
-import model
-import view
-import controller
+from src.engine.event_manager import EventManager
+from src.engine.model import GameEngine
+from src.engine.view import PygameView
+from src.engine.controller import KeyboardAndMouse
 
 
 def run():
     """Main Entry point"""
-    ev_manager = event_manager.EventManager()
-    gamemodel = model.GameEngine(ev_manager)
-    keyboard = controller.KeyboardAndMouse(ev_manager, gamemodel)
-    graphics = view.PygameView(ev_manager, gamemodel)
+    ev_manager = EventManager()
+    gamemodel = GameEngine(ev_manager)
+    keyboard = KeyboardAndMouse(ev_manager, gamemodel)
+    graphics = PygameView(ev_manager, gamemodel)
     gamemodel.run()
 
 

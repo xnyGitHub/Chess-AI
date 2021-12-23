@@ -1,5 +1,5 @@
 """Model class part of MVC"""
-from event_types import QuitEvent, TickEvent
+from src.engine.event_types import QuitEvent, TickEvent
 from src.engine.board import GameState
 
 
