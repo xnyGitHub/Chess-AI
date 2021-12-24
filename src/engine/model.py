@@ -1,17 +1,14 @@
-"""Model class part of MVC"""
+"""Model class part of the MVC"""
 from src.engine.event_types import QuitEvent, TickEvent
 from src.engine.board import GameState
 
 
 class GameEngine:
-    """
-    Tracks the game state.
-    """
+    """Holds the game state."""
 
     def __init__(self, ev_manager):
         """
         evManager (EventManager): Allows posting messages to the event queue.
-
         Attributes:
         running (bool): True while the engine is online. Changed via QuitEvent().
         """
@@ -22,9 +19,7 @@ class GameEngine:
         self.gamestate = GameState()
 
     def notify(self, event):
-        """
-        Called by an event in the message queue.
-        """
+        """Called by an event in the message queue."""
 
         if isinstance(event, QuitEvent):
             self.running = False

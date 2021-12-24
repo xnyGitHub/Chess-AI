@@ -14,14 +14,14 @@ class GameState:
 
     def __init__(self) -> None:
         """Default board constructor"""
-        self.board = [["-" for _ in range(8)] for _ in range(8)]
-        white_pieces = ["R", "N", "B", "Q", "K", "B", "N", "R"]
-        black_pieces = ["r", "n", "b", "q", "k", "b", "n", "r"]
+        self.board = [["--" for _ in range(8)] for _ in range(8)]
+        white_pieces = ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]
+        black_pieces = ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bB"]
 
         for column in range(8):
             self.board[0][column] = white_pieces[column]
-            self.board[1][column] = "P"
-            self.board[6][column] = "p"
+            self.board[1][column] = "wP"
+            self.board[6][column] = "bP"
             self.board[7][column] = black_pieces[column]
 
     def __repr__(self) -> str:

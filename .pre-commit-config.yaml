@@ -24,7 +24,7 @@ repos:
     hooks:
       - id: pylint
         name: pylint
-        entry: python -m pylint
+        entry: pylint
         language: system
         types: [python]
         exclude: ^migrations/
