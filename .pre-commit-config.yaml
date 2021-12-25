@@ -20,12 +20,10 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
-  - repo: local
+  - repo: https://github.com/PyCQA/pylint
+    rev: pylint-2.4.2
     hooks:
       - id: pylint
-        name: pylint
-        entry: pylint
-        language: system
         types: [python]
         exclude: ^migrations/
         args:
