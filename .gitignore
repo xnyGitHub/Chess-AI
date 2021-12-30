@@ -1,3 +1,5 @@
+# [vscode]
+.vscode
 
 # [pytest files]
 .pytest_cache
@@ -6,13 +8,12 @@
 **__pycache__
 *.pyc
 
-# [personal files]
-z_playground.py
-checklist.txt
+# [reports]
+.coverage
+reports
 
 # [Setup.py files]
 *.egg-info
-
 
 # [virtual envs]
 venv

@@ -9,4 +9,4 @@ lint:
 	$(PYTHON) -m black src tests
 	$(PYTHON) -m pylint src tests
 test:
-	$(PYTHON) -m pytest -v
+	$(PYTHON) -m pytest -vv --cov=src --cov-report=term-missing --no-cov-on-fail
