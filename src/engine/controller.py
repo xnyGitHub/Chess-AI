@@ -1,9 +1,9 @@
 """Controller class part of MVC"""
 import pygame
-from src.engine.event_types import TickEvent, QuitEvent, Event
+from src.engine.event_manager import TickEvent, QuitEvent, Event, ClickEvent
 
 
-class KeyboardAndMouse:
+class Controller:
     """Controller class"""
 
     def __init__(self, ev_manager, model):
@@ -15,21 +15,34 @@ class KeyboardAndMouse:
         ev_manager.register_listener(self)
         self.model = model
 
-    def notify(self, event):
+    def notify(self, event_type):
         """
         Receive events posted to the message queue.
         """
+        # if isinstance(event_type, TickEvent) and event_type.testing:
+        #     test_event = pygame.event.Event(
+        #         pygame.MOUSEBUTTONDOWN, {"pos": (245, 221), "button": 1}
+        #     )
+        #     pygame.event.post(test_event)
 
-        if isinstance(event, TickEvent):
+        if isinstance(event_type, TickEvent):
+
             # Called for each game tick. We check our keyboard presses here.
-            for pyg_ev in pygame.event.get():
+            for event in pygame.event.get():
                 # handle window manager closing our window
-                if pyg_ev.type == pygame.QUIT:
+                if event.type == pygame.QUIT:
                     self.ev_manager.post(QuitEvent())
                 # handle key down events
-                if pyg_ev.type == pygame.KEYDOWN:
-                    if pyg_ev.key == pygame.K_ESCAPE:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
                         self.ev_manager.post(QuitEvent())
                     else:
                         # post any other keys to the message queue for everyone else to see
                         self.ev_manager.post(Event())
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    location = (
+                        pygame.mouse.get_pos()
+                    )  # We get the pixel location of mouse
+                    # pygame.event.post(test_event)
+                    click_event = ClickEvent(location)
+                    self.ev_manager.post(click_event)
