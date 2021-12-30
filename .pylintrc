@@ -10,7 +10,8 @@
 # multiple time (only on the command line, not in the configuration file where
 # it should appear only once).
 #disable=
-disable=anomalous-backslash-in-string,
+disable=no-self-use,
+        anomalous-backslash-in-string,
         import-error,
         too-few-public-methods,
         super-init-not-called,
