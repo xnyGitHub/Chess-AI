@@ -1,18 +1,17 @@
 """View class as part of MVC model"""
 import pygame
-from src.engine.event_types import QuitEvent
+from src.engine.event_manager import QuitEvent, TickEvent
 
 
 WIDTH = HEIGHT = 512  # Heigh and width of the board
 DIMENSION = 8  # This will cause 8 squares to be print on the board
 SQUARE_SIZE = HEIGHT / DIMENSION  # Dimensions of the square
-IMAGES = {}
 
 
 class PygameView:
     """Pygame UI class"""
 
-    def __init__(self, ev_manager, model):
+    def __init__(self, ev_manager, model, testing: bool = False):
         """Constructor"""
 
         self.ev_manager = ev_manager
@@ -20,29 +19,17 @@ class PygameView:
         self.model = model
 
         self.initialised = False
-        self.images_loaded = False
         self.screen = None
         self.clock = None
-        self.initialise()
-
-    def initialise(self):
-        """Create and initialise a pygame instance"""
-
-        pygame.init()
-        pygame.display.set_caption("Chess Engine")
-
-        self.screen = pygame.display.set_mode((512, 512))
-        self.clock = pygame.time.Clock()
-        self.initialised = True
-
-        self.load_images()
+        self.images = {}
+        self.initialised = self.initialise(testing)
 
     def notify(self, event):
         """Process the event and decide what to do"""
         if isinstance(event, QuitEvent):
             self.initialised = False
             pygame.quit()
-        else:
+        if isinstance(event, TickEvent):
             self.render()
         # Process all other events here
 
@@ -63,22 +50,21 @@ class PygameView:
             "bQ",
         ]
         for piece in pieces:
-            IMAGES[piece] = pygame.image.load("src/images/" + piece + ".png")
-        self.images_loaded = True
+            self.images[piece] = pygame.image.load(
+                "src/assets/images/" + piece + ".png"
+            )
 
-    def render(self):
+        return self.images
+
+    def render(self, testing: bool = False):
         """Render the screen"""
         if not self.initialised:
             return
 
         self.draw_board()
         self.draw_pieces()
-        self.update_display()
-
-    @staticmethod
-    def update_display():
-        """Refresh/Render/Update the Pygame screen"""
-        pygame.display.flip()
+        if not testing:
+            pygame.display.flip()
 
     def draw_board(self):
         """Functions that draws the board without the pieces
@@ -103,13 +89,13 @@ class PygameView:
 
     def draw_pieces(self):
         """Draw the piece images onto the board"""
-        board = self.model.gamestate.board
+        board = self.model.board
         for row in range(DIMENSION):
             for col in range(DIMENSION):
                 piece = board[row][col]
                 if piece != "--":
                     self.screen.blit(
-                        IMAGES[piece],
+                        self.images[piece],
                         pygame.Rect(
                             col * SQUARE_SIZE,
                             row * SQUARE_SIZE,
@@ -117,3 +103,15 @@ class PygameView:
                             SQUARE_SIZE,
                         ),
                     )
+
+    def initialise(self, testing: bool = False):
+        """Create and initialise a pygame instance"""
+
+        if not testing:
+
+            pygame.display.set_caption("Chess Engine")
+            self.screen = pygame.display.set_mode((512, 512))
+            self.clock = pygame.time.Clock()
+            self.load_images()
+
+        return True
