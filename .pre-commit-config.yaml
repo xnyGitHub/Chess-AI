@@ -16,15 +16,15 @@ repos:
         always_run: true
       - id: pytest-check
         name: pytest-check
-        entry: "pytest tests"
+        entry: "python -m pytest tests"
         language: system
         pass_filenames: false
         always_run: true
-  - repo: https://github.com/PyCQA/pylint
-    rev: pylint-2.4.2
+  - repo: local
     hooks:
       - id: pylint
+        name: pylint
+        entry: pylint
+        language: system
         types: [python]
-        exclude: ^migrations/
-        args:
-          - --rcfile=.pylintrc
+        args: ["--rcfile=.pylintrc", "--fail-under=9"]

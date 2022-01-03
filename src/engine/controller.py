@@ -15,30 +15,26 @@ class Controller:
         ev_manager.register_listener(self)
         self.model = model
 
+    def unregister(self):
+        """Unregister the controller from the set of listeners"""
+        self.ev_manager.unregister_listener(self)
+
     def notify(self, event_type):
         """
         Receive events posted to the message queue.
         """
-        # if isinstance(event_type, TickEvent) and event_type.testing:
-        #     test_event = pygame.event.Event(
-        #         pygame.MOUSEBUTTONDOWN, {"pos": (245, 221), "button": 1}
-        #     )
-        #     pygame.event.post(test_event)
-
+        # pylint: disable=no-member
         if isinstance(event_type, TickEvent):
 
             # Called for each game tick. We check our keyboard presses here.
             for event in pygame.event.get():
-                # handle window manager closing our window
+                # Handle click on close
                 if event.type == pygame.QUIT:
                     self.ev_manager.post(QuitEvent())
-                # handle key down events
+                # Handle Key events
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        self.ev_manager.post(QuitEvent())
-                    else:
-                        # post any other keys to the message queue for everyone else to see
-                        self.ev_manager.post(Event())
+                    self.ev_manager.post(Event())
+                # Handle Mouse Button events
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     location = (
                         pygame.mouse.get_pos()
