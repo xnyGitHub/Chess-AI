@@ -11,7 +11,7 @@ SQUARE_SIZE = HEIGHT / DIMENSION  # Dimensions of the square
 class PygameView:
     """Pygame UI class"""
 
-    def __init__(self, ev_manager, model, testing: bool = False):
+    def __init__(self, ev_manager, model):
         """Constructor"""
 
         self.ev_manager = ev_manager
@@ -22,13 +22,13 @@ class PygameView:
         self.screen = None
         self.clock = None
         self.images = {}
-        self.initialised = self.initialise(testing)
+        self.initialised = self.initialise()
 
     def notify(self, event):
         """Process the event and decide what to do"""
         if isinstance(event, QuitEvent):
             self.initialised = False
-            pygame.quit()
+            pygame.quit()  # pylint: disable=no-member
         if isinstance(event, TickEvent):
             self.render()
         # Process all other events here
@@ -56,15 +56,14 @@ class PygameView:
 
         return self.images
 
-    def render(self, testing: bool = False):
+    def render(self):
         """Render the screen"""
         if not self.initialised:
             return
 
         self.draw_board()
         self.draw_pieces()
-        if not testing:
-            pygame.display.flip()
+        pygame.display.flip()
 
     def draw_board(self):
         """Functions that draws the board without the pieces
@@ -75,7 +74,9 @@ class PygameView:
         pygame.Rect(left(x-cord), top(y-cord), width, height)
 
         """
-        colors = [pygame.Color("white"), pygame.Color("gray")]
+        off_green = (119, 149, 86)
+        off_white = (235, 235, 208)
+        colors = [off_white, off_green]
         for row in range(DIMENSION):
             for col in range(DIMENSION):
                 color = colors[((row + col) % 2)]
@@ -104,14 +105,12 @@ class PygameView:
                         ),
                     )
 
-    def initialise(self, testing: bool = False):
+    def initialise(self):
         """Create and initialise a pygame instance"""
 
-        if not testing:
-
-            pygame.display.set_caption("Chess Engine")
-            self.screen = pygame.display.set_mode((512, 512))
-            self.clock = pygame.time.Clock()
-            self.load_images()
+        pygame.display.set_caption("Chess Engine")
+        self.screen = pygame.display.set_mode((512, 512))
+        self.clock = pygame.time.Clock()
+        self.load_images()
 
         return True
