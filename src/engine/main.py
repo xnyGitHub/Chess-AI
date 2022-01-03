@@ -7,6 +7,7 @@ from src.engine.controller import Controller
 
 
 def run():
+    # pylint: disable=unused-variable
     """Main Entry point"""
     ev_manager = EventManager()
     gamemodel = GameEngine(ev_manager)
