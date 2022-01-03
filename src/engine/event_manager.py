@@ -1,4 +1,4 @@
-"""Event manager file"""
+"""Event manager file"""  # pylint: disable=too-few-public-methods,super-init-not-called
 
 
 class Event:
@@ -17,27 +17,21 @@ class Event:
 
 
 class QuitEvent(Event):
-    """
-    Quit event.
-    """
+    """Quit event."""
 
     def __init__(self):
         self.name = "Quit event"
 
 
 class TickEvent(Event):
-    """
-    Tick event.
-    """
+    """Tick event."""
 
     def __init__(self):
         self.name = "Tick event"
 
 
 class ClickEvent(Event):
-    """
-    Click event.
-    """
+    """Click event."""
 
     def __init__(self, location: tuple):
         """
@@ -49,13 +43,15 @@ class ClickEvent(Event):
 
 
 class EventManager:
-    """this object is responsible for coordinating most communication
+    """This object is responsible for coordinating most communication
     between the Model, View, and Controller."""
 
     def __init__(self):
         """Constructor"""
+        # pylint: disable=import-outside-toplevel
         from weakref import WeakKeyDictionary
 
+        # pylint: enable=import-outside-toplevel
         self.listeners = WeakKeyDictionary()
 
     def register_listener(self, listener):
