@@ -1,29 +1,58 @@
-"""Test class for src/engine/board.py"""
-from unittest.mock import Mock, patch
-from src.engine.model import GameEngine, Move, Capture
-from src.engine.event_manager import EventManager, ClickEvent
+"""Test class for src/engine/board.py"""  # pylint: disable=too-few-public-methods
+from unittest.mock import patch
+from src.engine.model import GameEngine
+from src.engine.event_manager import EventManager, ClickEvent, QuitEvent
 from tests.helpers.general_helpers import mock_print, unmock_print
+from tests.helpers.model_helpers import (
+    game_engine_repr_output,
+    game_engine_str_output,
+    game_engine_print_output,
+)
 
 
-class TestBoardState:
+class TestGameEngine:
     """Class for testing src/engine/board.py"""
 
-    def test_board_class_repr(self):
+    @patch("src.engine.event_manager.EventManager")
+    def test_game_enigne_init(self, mock_event_manager):
+        """Test the GameEngine __init__ method"""
+        # Arrange & Act
+        game_engine = GameEngine(mock_event_manager)
+
+        # Assert
+        assert game_engine.running is False
+        assert not game_engine.square_selected
+        assert not game_engine.player_clicks
+        assert not game_engine.most_recent_valid_move_click
+        assert game_engine.board == [
+            ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"],
+            ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
+            ["--", "--", "--", "--", "--", "--", "--", "--"],
+            ["--", "--", "--", "--", "--", "--", "--", "--"],
+            ["--", "--", "--", "--", "--", "--", "--", "--"],
+            ["--", "--", "--", "--", "--", "--", "--", "--"],
+            ["bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP"],
+            ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bB"],
+        ]
+
+    @patch("src.engine.event_manager.EventManager")
+    def test_game_enigne_registered_as_listener(self, mock_event_manager):
+        """Test that the GameEngine registers itself as a listner"""
+        # Arrange
+
+        # Act
+        game_engine = GameEngine(mock_event_manager)
+
+        # Assert
+        mock_event_manager.register_listener.assert_called_once_with(game_engine)
+
+    @patch("src.engine.event_manager.EventManager")
+    def test_ganme_engine_repr(self, mock_event_manager):
         """Unit test for repr magic method of GameState class"""
 
         # Arrange
-        mock_event_manager = Mock(EventManager)
         game_engine = GameEngine(mock_event_manager)
-        expected_result = """GameSate(
-['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR']
-['wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP']
-['--', '--', '--', '--', '--', '--', '--', '--']
-['--', '--', '--', '--', '--', '--', '--', '--']
-['--', '--', '--', '--', '--', '--', '--', '--']
-['--', '--', '--', '--', '--', '--', '--', '--']
-['bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP']
-['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bB']
-)"""
+        expected_result = game_engine_repr_output()
 
         # Act
         repr_ = game_engine.__repr__()
@@ -31,20 +60,13 @@ class TestBoardState:
         # Assert
         assert repr_ == expected_result
 
-    def test_board_class_str(self):
+    @patch("src.engine.event_manager.EventManager")
+    def test_board_class_str(self, mock_event_manager):
         """Unit test for str magic method of GameState class"""
 
         # Arrange
-        mock_event_manager = Mock(EventManager)
         game_engine = GameEngine(mock_event_manager)
-        expected_result = """wR wN wB wQ wK wB wN wR
-wP wP wP wP wP wP wP wP
--- -- -- -- -- -- -- --
--- -- -- -- -- -- -- --
--- -- -- -- -- -- -- --
--- -- -- -- -- -- -- --
-bP bP bP bP bP bP bP bP
-bR bN bB bQ bK bB bN bB"""
+        expected_result = game_engine_str_output()
 
         # Act
         str_ = game_engine.__str__()
@@ -52,22 +74,14 @@ bR bN bB bQ bK bB bN bB"""
         # Assert
         assert str_ == expected_result
 
-    def test_board_class_print_output(self):
+    @patch("src.engine.event_manager.EventManager")
+    def test_board_class_print_output(self, mock_event_manager):
         """Unit test to test the print function to sys.stdout"""
 
         # Arrange
-        mock_event_manager = Mock(EventManager)
         game_engine = GameEngine(mock_event_manager)
         mocked_print_output = mock_print()
-        expected_result = """wR wN wB wQ wK wB wN wR
-wP wP wP wP wP wP wP wP
--- -- -- -- -- -- -- --
--- -- -- -- -- -- -- --
--- -- -- -- -- -- -- --
--- -- -- -- -- -- -- --
-bP bP bP bP bP bP bP bP
-bR bN bB bQ bK bB bN bB
-"""
+        expected_result = game_engine_print_output()
 
         # Act
         print(game_engine)
@@ -77,7 +91,7 @@ bR bN bB bQ bK bB bN bB
         assert mocked_print_output.getvalue() == expected_result
 
 
-class TestGameEngineRunningAndQuitEvent:
+class TestGameEngineRunning:
     """Class for testing the game engine"""
 
     @patch("src.engine.event_manager.EventManager.post")
@@ -95,35 +109,26 @@ class TestGameEngineRunningAndQuitEvent:
         assert mock_post.call_count == 3
 
 
+class TestGameEngineQuitEvent:
+    """Class for testing the game engine"""
+
+    def test_game_engine_running(self):
+        """Test game engine posts events when created"""
+        # Arrange
+        event_manager = EventManager()
+        game_engine = GameEngine(event_manager)
+
+        # Act
+        game_engine.run(True)
+        new_quit_event = QuitEvent()
+        event_manager.post(new_quit_event)
+
+        # Assert
+        assert game_engine.running is False
+
+
 class TestClickEvents:
     """Class for testing whether click events are regsitered"""
-
-    def test_valid_click_event(self):
-        """Unit test click_event for model.py"""
-        event_manager = EventManager()
-        game_engine = GameEngine(event_manager)
-
-        click_event = ClickEvent((510, 510))
-        event_manager.post(click_event)
-        assert game_engine.square_selected == (7, 7)
-        assert game_engine.player_clicks == [(7, 7)]
-        assert game_engine.most_recent_valid_move_click == []
-
-        click_event = ClickEvent((511, 447))
-        event_manager.post(click_event)
-        assert game_engine.square_selected == ()
-        assert game_engine.player_clicks == []
-        assert game_engine.most_recent_valid_move_click == [(7, 7), (7, 6)]
-
-    def test_invalid_click_event(self):
-        """Unit test click_event for model.py"""
-        event_manager = EventManager()
-        game_engine = GameEngine(event_manager)
-
-        click_event = ClickEvent((800, 510))
-        event_manager.post(click_event)
-        assert game_engine.square_selected == ()
-        assert game_engine.player_clicks == []
 
     def test_two_valid_click_events(self):
         """Unit test click_event for model.py"""
@@ -134,15 +139,25 @@ class TestClickEvents:
         event_manager.post(click_event)
         assert game_engine.square_selected == (7, 7)
         assert game_engine.player_clicks == [(7, 7)]
-        assert game_engine.most_recent_valid_move_click == []
+        assert not game_engine.most_recent_valid_move_click
 
-        click_event = ClickEvent((510, 510))
+        click_event = ClickEvent((511, 447))
         event_manager.post(click_event)
-        assert game_engine.square_selected == ()
-        assert game_engine.player_clicks == []
-        assert game_engine.most_recent_valid_move_click == []
+        assert not game_engine.square_selected
+        assert not game_engine.player_clicks
+        assert game_engine.most_recent_valid_move_click == [(7, 7), (7, 6)]
 
-    def test_two_valid_then_invalid_events(self):
+    def test_invalid_click_event(self):
+        """Unit test click_event for model.py"""
+        event_manager = EventManager()
+        game_engine = GameEngine(event_manager)
+
+        click_event = ClickEvent((800, 510))
+        event_manager.post(click_event)
+        assert not game_engine.square_selected
+        assert not game_engine.player_clicks
+
+    def test_two_valid_same_cord_click_events(self):
         """Unit test click_event for model.py"""
         event_manager = EventManager()
         game_engine = GameEngine(event_manager)
@@ -151,64 +166,27 @@ class TestClickEvents:
         event_manager.post(click_event)
         assert game_engine.square_selected == (7, 7)
         assert game_engine.player_clicks == [(7, 7)]
-        assert game_engine.most_recent_valid_move_click == []
+        assert not game_engine.most_recent_valid_move_click
+
+        click_event = ClickEvent((510, 510))
+        event_manager.post(click_event)
+        assert not game_engine.square_selected
+        assert not game_engine.player_clicks
+        assert not game_engine.most_recent_valid_move_click
+
+    def test_valid_then_invalid_click_event(self):
+        """Unit test click_event for model.py"""
+        event_manager = EventManager()
+        game_engine = GameEngine(event_manager)
+
+        click_event = ClickEvent((510, 510))
+        event_manager.post(click_event)
+        assert game_engine.square_selected == (7, 7)
+        assert game_engine.player_clicks == [(7, 7)]
+        assert not game_engine.most_recent_valid_move_click
 
         click_event = ClickEvent((513, 513))
         event_manager.post(click_event)
-        assert game_engine.square_selected == ()
-        assert game_engine.player_clicks == []
-        assert game_engine.most_recent_valid_move_click == []
-
-
-class TestMove:
-    """Test class for testing Moves"""
-
-    def test_class_move_repr(self):
-        """Test that __repr__ works as intended"""
-        start_square = (0, 0)
-        end_square = (1, 1)
-        move_type = "Normal"
-        new_move = Move(start_square, end_square)
-
-        expected_output = """self.start_square=(0, 0)
-self.end_square=(1, 1)
-self.movetype='Move'
-"""
-        actual_output = new_move.__repr__()
-        assert actual_output == expected_output
-
-    def test_class_move_instance_of_capture(self):
-        """Test that capture class inherits move class works as intended"""
-        start_square = (0, 0)
-        end_square = (1, 1)
-        new_move = Move(start_square, end_square)
-
-        expected_output = False
-        result = isinstance(new_move, Capture)
-        assert result == expected_output
-
-    def test_class_capture_instance_of_move(self):
-        """Test that capture class is NOT an instance of move class"""
-        board = [["--" for _ in range(8)] for _ in range(8)]
-        white_pieces = ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]
-        black_pieces = ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bB"]
-
-        for column in range(8):
-            board[0][column] = white_pieces[column]
-            board[1][column] = "wP"
-            board[6][column] = "bP"
-            board[7][column] = black_pieces[column]
-
-        board[6][0] = "--"
-
-        start_square = (7, 0)
-        end_square = (1, 0)
-        new_move = Capture(start_square, end_square, board)
-
-        expected_output = """self.start_square=(7, 0)
-self.end_square=(1, 0)
-self.movetype='Capture'
-self.piece_moved='bR'
-self.piece_captured='wP'
-"""
-        assert new_move.__repr__() == expected_output
+        assert not game_engine.square_selected
+        assert not game_engine.player_clicks
+        assert not game_engine.most_recent_valid_move_click

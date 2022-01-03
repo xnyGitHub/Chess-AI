@@ -16,11 +16,10 @@ class GameEngine:
     def __init__(self, ev_manager):
         """
         evManager (EventManager): Allows posting messages to the event queue.
-        Attributes:
         running (bool): True while the engine is online. Changed via QuitEvent().
         square_selected (tuple): Holds the most recent square clicked
-        player_clicks (array containing tuples): Holds up to TWO tuples
-        board (array): Holds the gamestate in an array
+        player_clicks (array containing square_selected): Holds up to two square_selected
+        board (array): Holds the chess gamestate in a 2d array
         """
 
         self.ev_manager = ev_manager
@@ -112,47 +111,3 @@ class GameEngine:
             while self.running:
                 new_tick = TickEvent()
                 self.ev_manager.post(new_tick)
-
-
-class Move:
-    """Class that stores info about a move"""
-
-    def __init__(self, start_square, end_square):
-        """Each move has a move type Normal | Capture | Castle | EnPassant
-        start_square: (tuple) -> (row,col)
-        end_square: (tuple) -> (row,col)
-        """
-        self.start_square = start_square
-        self.end_square = end_square
-        self.movetype = Move.__name__
-        self.start_row = start_square[0]
-        self.start_col = start_square[1]
-        self.end_row = end_square[0]
-        self.end_col = end_square[1]
-
-    def __repr__(self) -> str:
-        """Repr function for debugging and visualisation"""
-        return f"""{self.start_square=}
-{self.end_square=}
-{self.movetype=}
-"""
-
-
-class Capture(Move):
-    """Class responsible for piece captures"""
-
-    def __init__(self, start_square, end_square, board):
-        super().__init__(start_square, end_square)
-        self.piece_moved = board[self.start_row][self.start_col]
-        self.piece_captured = board[self.end_row][self.end_col]
-        self.board = board
-        self.movetype = Capture.__name__
-
-    def __repr__(self) -> str:
-        """Repr function for debugging and visualisation"""
-        return f"""{self.start_square=}
-{self.end_square=}
-{self.movetype=}
-{self.piece_moved=}
-{self.piece_captured=}
-"""
