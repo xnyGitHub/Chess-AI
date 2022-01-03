@@ -10,11 +10,4 @@
 # multiple time (only on the command line, not in the configuration file where
 # it should appear only once).
 #disable=
-disable=no-self-use,
-        anomalous-backslash-in-string,
-        import-error,
-        too-few-public-methods,
-        super-init-not-called,
-        import-outside-toplevel,
-        no-member,
-        unused-variable
+disable=no-self-use
