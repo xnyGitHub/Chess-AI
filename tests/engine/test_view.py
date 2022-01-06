@@ -11,6 +11,8 @@ class TestPygameView:
 
     def setup_method(self):
         """Setup method that mocks out pygame initialisation"""
+        patch = mock.patch("src.engine.view.pygame.init")
+        self.mock_py_init = patch.start()
         patch = mock.patch("src.engine.view.pygame.time.Clock")
         self.mock_py_time = patch.start()
         patch = mock.patch("src.engine.view.pygame.display.set_mode")
@@ -22,9 +24,6 @@ class TestPygameView:
     def teardown_method(self):
         """Tear down method that stops the mocks"""
         print("Teardown running...")
-        del self.mock_py_time
-        del self.mock_py_set_mode
-        del self.mock_py_set_caption
         mock.patch.stopall()
 
     def test_initialise(self):
@@ -116,10 +115,11 @@ class TestPygameView:
         assert pygame_instance.render() is None
 
     @mock.patch("src.engine.view.pygame.display.flip")
+    @mock.patch("src.engine.view.PygameView.draw_files_and_rank")
     @mock.patch("src.engine.view.PygameView.draw_pieces")
     @mock.patch("src.engine.view.PygameView.draw_board")
     def test_render_when_initialised(
-        self, mock_draw_board, mock_draw_piece, mock_pygame_display_flip
+        self, mock_draw_board, mock_draw_piece, mock_draw_raf, mock_pygame_display_flip
     ):
         """Test that render is called when view has been initialised"""
         # Arrange
@@ -133,6 +133,7 @@ class TestPygameView:
         # Assert
         mock_draw_piece.assert_called()
         mock_draw_board.assert_called()
+        mock_draw_raf.assert_called()
         mock_pygame_display_flip.assert_called()
 
     @mock.patch("src.engine.view.pygame.draw.rect")

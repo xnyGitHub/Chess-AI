@@ -63,6 +63,7 @@ class PygameView:
 
         self.draw_board()
         self.draw_pieces()
+        self.draw_files_and_rank()
         pygame.display.flip()
 
     def draw_board(self):
@@ -105,9 +106,25 @@ class PygameView:
                         ),
                     )
 
+    def draw_files_and_rank(self):
+        pygame.font.init()
+        font = pygame.font.Font(pygame.font.get_default_font(), 12)
+        files = ["0", "1", "2", "3", "4", "5", "6", "7"]
+        for r in range(DIMENSION):  # Loop through each rank
+            text_object = font.render(files[r], True, pygame.Color("Black"))
+            self.screen.blit(
+                text_object,
+                pygame.Rect(3, r * SQUARE_SIZE + 3, SQUARE_SIZE, SQUARE_SIZE),
+            )
+            self.screen.blit(
+                text_object,
+                pygame.Rect(r * SQUARE_SIZE + 52, 512 - 15, SQUARE_SIZE, SQUARE_SIZE),
+            )  # Measurements to display the ranks
+
     def initialise(self):
         """Create and initialise a pygame instance"""
 
+        pygame.init()
         pygame.display.set_caption("Chess Engine")
         self.screen = pygame.display.set_mode((512, 512))
         self.clock = pygame.time.Clock()
