@@ -14,28 +14,6 @@ class TestGameEngine:
     """Class for testing src/engine/board.py"""
 
     @patch("src.engine.event_manager.EventManager")
-    def test_game_enigne_init(self, mock_event_manager):
-        """Test the GameEngine __init__ method"""
-        # Arrange & Act
-        game_engine = GameEngine(mock_event_manager)
-
-        # Assert
-        assert game_engine.running is False
-        assert not game_engine.square_selected
-        assert not game_engine.player_clicks
-        assert not game_engine.most_recent_valid_move_click
-        assert game_engine.board == [
-            ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"],
-            ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
-            ["--", "--", "--", "--", "--", "--", "--", "--"],
-            ["--", "--", "--", "--", "--", "--", "--", "--"],
-            ["--", "--", "--", "--", "--", "--", "--", "--"],
-            ["--", "--", "--", "--", "--", "--", "--", "--"],
-            ["bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP"],
-            ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bB"],
-        ]
-
-    @patch("src.engine.event_manager.EventManager")
     def test_game_enigne_registered_as_listener(self, mock_event_manager):
         """Test that the GameEngine registers itself as a listner"""
         # Arrange
