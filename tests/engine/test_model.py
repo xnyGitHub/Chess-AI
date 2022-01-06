@@ -69,42 +69,6 @@ class TestGameEngine:
         assert mocked_print_output.getvalue() == expected_result
 
 
-class TestGameEngineRunning:
-    """Class for testing the game engine"""
-
-    @patch("src.engine.event_manager.EventManager.post")
-    def test_game_engine_running(self, mock_post):
-        """Test game engine posts events when created"""
-        # Arrange
-        event_manager = EventManager()
-        game_engine = GameEngine(event_manager)
-
-        # Act
-        game_engine.run(True)
-
-        # Assert
-        assert game_engine.running
-        assert mock_post.call_count == 3
-
-
-class TestGameEngineQuitEvent:
-    """Class for testing the game engine"""
-
-    def test_game_engine_running(self):
-        """Test game engine posts events when created"""
-        # Arrange
-        event_manager = EventManager()
-        game_engine = GameEngine(event_manager)
-
-        # Act
-        game_engine.run(True)
-        new_quit_event = QuitEvent()
-        event_manager.post(new_quit_event)
-
-        # Assert
-        assert game_engine.running is False
-
-
 class TestClickEvents:
     """Class for testing whether click events are regsitered"""
 

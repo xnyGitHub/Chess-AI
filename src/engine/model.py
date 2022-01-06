@@ -1,6 +1,6 @@
 """Model class part of the MVC"""
 import numpy as np
-from src.engine.event_manager import QuitEvent, TickEvent, ClickEvent
+from src.engine.event_manager import QuitEvent, TickEvent, ClickEvent, Event
 from src.utils.model_helpers import piece_movemovents
 
 
@@ -50,7 +50,7 @@ class GameEngine:
         return "\n".join(" ".join(map(str, sub)) for sub in self.board)
 
     @staticmethod
-    def is_in_bounds(new_x, new_y):
+    def is_in_bounds(new_x: int, new_y: int):
         """Check if a set of cords is in-bounds"""
         if 0 <= new_x <= 7 and 0 <= new_y <= 7:
             return True
@@ -152,7 +152,7 @@ class GameEngine:
                                 }
                             )
 
-    def notify(self, event):
+    def notify(self, event: Event):
         """Called by an event in the message queue."""
 
         if isinstance(event, QuitEvent):
@@ -171,18 +171,9 @@ class GameEngine:
                     self.square_selected = ()
                     self.player_clicks = []
 
-    def run(self, testing: bool = False):
-        """
-        Starts the game engine loop.
-        This pumps a Tick event into the message queue for each loop.
-        The loop ends when this object hears a QuitEvent in notify().
-        """
+    def run(self):
+        """Starts the game engine loop. Keep running until QuitEvent()"""
         self.running = True
-        if testing:
-            for _ in range(3):
-                new_tick = TickEvent()
-                self.ev_manager.post(new_tick)
-        else:
-            while self.running:
-                new_tick = TickEvent()
-                self.ev_manager.post(new_tick)
+        while self.running:
+            new_tick = TickEvent()
+            self.ev_manager.post(new_tick)
