@@ -13,8 +13,6 @@ class TestPygameView:
         """Setup method that mocks out pygame initialisation"""
         patch = mock.patch("src.engine.view.pygame.init")
         self.mock_py_init = patch.start()
-        patch = mock.patch("src.engine.view.pygame.time.Clock")
-        self.mock_py_time = patch.start()
         patch = mock.patch("src.engine.view.pygame.display.set_mode")
         self.mock_py_set_mode = patch.start()
         patch = mock.patch("src.engine.view.pygame.display.set_caption")
@@ -37,7 +35,6 @@ class TestPygameView:
 
         # Assert
         assert pygame_instance.initialised is True
-        self.mock_py_time.assert_called()
         self.mock_py_set_mode.assert_called()
         self.mock_py_set_caption.assert_called()
 

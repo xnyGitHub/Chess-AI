@@ -9,9 +9,9 @@ class Event:
 
     def __init__(self):
         """Constructor"""
-        self.name = "Generic event"
+        self.name: str = "Generic event"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return name with printed"""
         return self.name
 
@@ -20,26 +20,26 @@ class QuitEvent(Event):
     """Quit event."""
 
     def __init__(self):
-        self.name = "Quit event"
+        self.name: str = "Quit event"
 
 
 class TickEvent(Event):
     """Tick event."""
 
     def __init__(self):
-        self.name = "Tick event"
+        self.name: str = "Tick event"
 
 
 class ClickEvent(Event):
     """Click event."""
 
-    def __init__(self, location: tuple):
+    def __init__(self, location: list):
         """
         Constructor for ClickEvent
         location:tuple = (y,x) which represent board squares
         """
-        self.name = "Click event"
-        self.location = location
+        self.name: str = "Click event"
+        self.location: list = location
 
 
 class EventManager:
@@ -52,18 +52,18 @@ class EventManager:
         from weakref import WeakKeyDictionary
 
         # pylint: enable=import-outside-toplevel
-        self.listeners = WeakKeyDictionary()
+        self.listeners: WeakKeyDictionary = WeakKeyDictionary()
 
-    def register_listener(self, listener):
+    def register_listener(self, listener: object):
         """Register a listener to listen for events"""
         self.listeners[listener] = 1
 
-    def unregister_listener(self, listener):
+    def unregister_listener(self, listener: object):
         """Remove a listener"""
         if listener in self.listeners.keys():
             del self.listeners[listener]
 
-    def post(self, event):
+    def post(self, event: Event):
         """Function that notifies all listers of new event"""
         for listener in self.listeners.keys():
             # NOTE: If the weakref has died, it will be

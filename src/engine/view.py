@@ -1,6 +1,7 @@
 """View class as part of MVC model"""
 import pygame
-from src.engine.event_manager import QuitEvent, TickEvent
+from src.engine.event_manager import Event, QuitEvent, TickEvent, EventManager
+from src.engine.model import GameEngine
 
 
 WIDTH = HEIGHT = 512  # Heigh and width of the board
@@ -11,20 +12,19 @@ SQUARE_SIZE = HEIGHT / DIMENSION  # Dimensions of the square
 class PygameView:
     """Pygame UI class"""
 
-    def __init__(self, ev_manager, model):
+    def __init__(self, ev_manager: EventManager, model: GameEngine):
         """Constructor"""
 
-        self.ev_manager = ev_manager
+        self.ev_manager: EventManager = ev_manager
         ev_manager.register_listener(self)
-        self.model = model
+        self.model: GameEngine = model
 
-        self.initialised = False
-        self.screen = None
-        self.clock = None
-        self.images = {}
-        self.initialised = self.initialise()
+        self.initialised: bool = False
+        self.screen: pygame.Surface = None
+        self.images: dict = {}
+        self.initialised: bool = self.initialise()
 
-    def notify(self, event):
+    def notify(self, event: Event):
         """Process the event and decide what to do"""
         if isinstance(event, QuitEvent):
             self.initialised = False
@@ -75,9 +75,9 @@ class PygameView:
         pygame.Rect(left(x-cord), top(y-cord), width, height)
 
         """
-        off_green = (119, 149, 86)
-        off_white = (235, 235, 208)
-        colors = [off_white, off_green]
+        off_green: tuple = (119, 149, 86)
+        off_white: tuple = (235, 235, 208)
+        colors: list = [off_white, off_green]
         for row in range(DIMENSION):
             for col in range(DIMENSION):
                 color = colors[((row + col) % 2)]
@@ -91,7 +91,7 @@ class PygameView:
 
     def draw_pieces(self):
         """Draw the piece images onto the board"""
-        board = self.model.board
+        board: list = self.model.board
         for row in range(DIMENSION):
             for col in range(DIMENSION):
                 piece = board[row][col]
@@ -107,27 +107,33 @@ class PygameView:
                     )
 
     def draw_files_and_rank(self):
+        """Draw the ranks and file"""
         pygame.font.init()
-        font = pygame.font.Font(pygame.font.get_default_font(), 12)
-        files = ["0", "1", "2", "3", "4", "5", "6", "7"]
-        for r in range(DIMENSION):  # Loop through each rank
-            text_object = font.render(files[r], True, pygame.Color("Black"))
+        font: pygame.font.Font = pygame.font.Font(pygame.font.get_default_font(), 12)
+        files: list = ["0", "1", "2", "3", "4", "5", "6", "7"]
+        for index in range(DIMENSION):  # Loop through each rank
+            text_object = font.render(files[index], True, pygame.Color("Black"))
             self.screen.blit(
                 text_object,
-                pygame.Rect(3, r * SQUARE_SIZE + 3, SQUARE_SIZE, SQUARE_SIZE),
+                pygame.Rect(3, index * SQUARE_SIZE + 3, SQUARE_SIZE, SQUARE_SIZE),
             )
             self.screen.blit(
                 text_object,
-                pygame.Rect(r * SQUARE_SIZE + 52, 512 - 15, SQUARE_SIZE, SQUARE_SIZE),
+                pygame.Rect(
+                    index * SQUARE_SIZE + 52, 512 - 15, SQUARE_SIZE, SQUARE_SIZE
+                ),
             )  # Measurements to display the ranks
 
     def initialise(self):
         """Create and initialise a pygame instance"""
 
+        # pylint: disable=no-member
         pygame.init()
+        # pylint: enable=no-member
+
         pygame.display.set_caption("Chess Engine")
-        self.screen = pygame.display.set_mode((512, 512))
-        self.clock = pygame.time.Clock()
+        self.screen: pygame.Surface = pygame.display.set_mode((512, 512))
+
         self.load_images()
 
         return True
