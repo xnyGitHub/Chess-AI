@@ -1,29 +1,33 @@
 """Model class part of the MVC"""
+from typing import Union
 import numpy as np
-from src.engine.event_manager import QuitEvent, TickEvent, ClickEvent, Event
+
+from src.engine.event_manager import (
+    QuitEvent,
+    TickEvent,
+    ClickEvent,
+    Event,
+    EventManager,
+)
 from src.utils.model_helpers import piece_movemovents
 
 
 class GameEngine:
     """Holds the game state."""
 
-    def __init__(self, ev_manager):
+    def __init__(self, ev_manager: EventManager):
         """Create new gamestate"""
 
-        self.ev_manager = ev_manager
+        self.ev_manager: EventManager = ev_manager
         ev_manager.register_listener(self)
-        self.running = False
+        self.running: bool = False
 
-        self.square_selected = ()
-        self.player_clicks = []
-        self.most_recent_valid_move_click = []
-
-        self.white_moves = []
-        self.black_moves = []
-        self.piece_moves = piece_movemovents()
+        self.white_moves: list = []
+        self.black_moves: list = []
+        self.piece_moves: list = piece_movemovents()
 
         """Default board constructor"""
-        self.board = np.array(
+        self.board: np.array = np.array(
             [
                 ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"],
                 ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP"],
@@ -37,6 +41,8 @@ class GameEngine:
         )
 
         self.generate_all_moves()
+        for move in self.white_moves:
+            print(move)
 
     def __repr__(self) -> str:
         """Get repr representation of the board"""
@@ -50,13 +56,28 @@ class GameEngine:
         return "\n".join(" ".join(map(str, sub)) for sub in self.board)
 
     @staticmethod
-    def is_in_bounds(new_x: int, new_y: int):
+    def is_in_bounds(new_x: int, new_y: int) -> bool:
         """Check if a set of cords is in-bounds"""
         if 0 <= new_x <= 7 and 0 <= new_y <= 7:
             return True
         return False
 
-    def generate_all_moves(self):
+    @staticmethod
+    def check_has_pawn_moved(current_row: int, piece_color: str) -> bool:
+        """Given a row and color return whether a pawn has moved"""
+        if current_row == 6 and piece_color == "w":
+            return False
+        if current_row == 1 and piece_color == "b":
+            return False
+        return True
+
+    def get_piece_moves_dict(self, piece_type: str) -> Union[list, bool]:
+        """Return info: (dict) on ghow a particular piece moves"""
+        movements = self.piece_moves[piece_type]["movements"]
+        continuous = self.piece_moves[piece_type]["continous"]
+        return movements, continuous
+
+    def generate_all_moves(self) -> None:
         """Function that calls get moves"""
         # Clear each time otherwise we end up with duplicates
         self.white_moves.clear()
@@ -65,113 +86,135 @@ class GameEngine:
         # Loop board and get moves for each pieace
         for index, chess_square in np.ndenumerate(self.board):
             if chess_square != "--":
-                movements = self.piece_moves[chess_square[1]]["movements"]
-                is_continious = self.piece_moves[chess_square[1]]["continous"]
-                self.generate_moves(index, chess_square, movements, is_continious)
 
-    def generate_moves(
-        self, index: tuple, chess_square: str, movements: list, is_continious: bool
-    ) -> None:
+                array: list = []
+                piece_color: str
+                piece_type: str
+                piece_color, piece_type = chess_square
+
+                if piece_color == "w":
+                    array = self.white_moves
+                if piece_color == "b":
+                    array = self.black_moves
+
+                if piece_type == "P":  # Pawn
+                    self.get_pawn_moves(index, array, chess_square)
+                else:
+                    self.get_non_pawn_moves(index, array, chess_square)
+
+    def get_non_pawn_moves(self, index: tuple, array: list, chess_square: str) -> None:
         """Generate non-pawn moves here"""
+        row: int
+        col: int
         row, col = index
+        # ---------------
+        piece_color: str
+        piece_type: str
         piece_color, piece_type = chess_square
-        array = self.white_moves if piece_color == "w" else self.black_moves
+        # -------------------------------------
+        movements: list
+        is_continious: bool
+        movements, is_continious = self.get_piece_moves_dict(piece_type)
 
-        if piece_type != "P":  # If not pawn
-            for x, y in movements:  # Grab offsets
-                new_row, new_col = row + x, col + y  # Get new pos
-                while self.is_in_bounds(new_row, new_col):  #
-                    # Check if the square is empty
-                    if self.board[new_row][new_col] == "--":
-                        array.append(
-                            {
-                                "start": (row, col),
-                                "end": (new_row, new_col),
-                                "type": "Normal",
-                            }
-                        )
-                        if not is_continious:
-                            break
-                        new_row += x
-                        new_col += y
-                    else:
-                        # Collides with team piece
-                        if self.board[new_row][new_col][0] == piece_color:
-                            break
-                        # Collides with enemy piece
-                        array.append(
-                            {
-                                "start": (row, col),
-                                "end": (new_row, new_col),
-                                "type": "Capture",
-                            }
-                        )
+        # Loop through piece movements list
+        for add_x, add_y in movements:  # Grab offsets
+            new_row, new_col = row + add_x, col + add_y  # Get new pos
+            while self.is_in_bounds(new_row, new_col):  #
+                # Check if the square is empty
+                if self.board[new_row][new_col] == "--":
+                    array.append(
+                        {
+                            "start_square": (row, col),
+                            "end_square": (new_row, new_col),
+                            "type": "Normal",
+                        }
+                    )
+                    if not is_continious:
                         break
-            return
+                    new_row += add_x
+                    new_col += add_y
+                else:
+                    # Collides with team piece
+                    if self.board[new_row][new_col][0] == piece_color:
+                        break
+                    # Collides with enemy piece
+                    array.append(
+                        {
+                            "start_square": (row, col),
+                            "end_square": (new_row, new_col),
+                            "type": "Capture",
+                        }
+                    )
+                    break
 
-        # Line reached only if piece is pawn
-        # Set direction
-        direction = -1 if piece_color == "w" else 1
+    def get_pawn_moves(self, index: tuple, array: list, chess_square: str) -> None:
+        """Generate pawn moves"""
+
+        # Unpack the arguments
+        row: int
+        col: int
+        row, col = index
+        # ---------------
+        piece_color: str
+        piece_type: str
+        piece_color, piece_type = chess_square
+        # -------------------------------------
+        movements: list
+        movements, _ = self.get_piece_moves_dict(piece_type)
+
+        # Set pawn direction
+        if piece_color == "w":
+            direction = -1
+        if piece_color == "b":
+            direction = 1
+
         # Check if its inbounds
         if self.is_in_bounds(row + direction, col):
             if self.board[row + direction][col] == "--":  # If empty
                 array.append(
                     {
-                        "start": (row, col),
-                        "end": (row + direction, col),
+                        "startself.white_moves": (row, col),
+                        "end_square": (row + direction, col),
                         "type": "Normal",
                     }
                 )
 
                 # Two square move
                 if (
-                    (row == 6 and piece_color == "w")
-                    or (row == 1 and piece_color == "b")
+                    not self.check_has_pawn_moved(row, piece_color)
                     and self.board[row + (direction * 2)][col] == "--"
                 ):
                     array.append(
                         {
-                            "start": (row, col),
-                            "end": (row + (direction * 2), col),
+                            "start_square": (row, col),
+                            "end_square": (row + (direction * 2), col),
                             "type": "Normal",
                         }
                     )
             # Capture
-            offset = [1, -1]
-            for x in offset:
-                if 0 <= (col + x) <= 7:
-                    if self.board[row + direction][col + x][0] != "-":
+            for add_y in movements:
+                if 0 <= (col + add_y) <= 7:
+                    if self.board[row + direction][col + add_y][0] != "-":
                         if (
-                            self.board[row + direction][col + x][0] != piece_color
+                            self.board[row + direction][col + add_y][0] != piece_color
                         ):  # Move up left check
                             array.append(
                                 {
-                                    "start": (row, col),
-                                    "end": (row + direction, col + x),
+                                    "start_square": (row, col),
+                                    "end_square": (row + direction, col + add_y),
                                     "type": "Capture",
                                 }
                             )
 
-    def notify(self, event: Event):
+    def notify(self, event: Event) -> None:
         """Called by an event in the message queue."""
 
         if isinstance(event, QuitEvent):
             self.running = False
         if isinstance(event, ClickEvent):
-            col = int(event.location[0] / 64)
-            row = int(event.location[1] / 64)
-            if self.square_selected == (col, row) or col >= 8 or row >= 8:
-                self.square_selected = ()
-                self.player_clicks = []
-            else:  # Else if the user clicks on a different square we append it to player clicks
-                self.square_selected = col, row
-                self.player_clicks.append(self.square_selected)
-                if len(self.player_clicks) == 2:
-                    self.most_recent_valid_move_click = self.player_clicks
-                    self.square_selected = ()
-                    self.player_clicks = []
+            print(f"recieved {event.location}")
 
-    def run(self):
+    def run(self) -> None:
         """Starts the game engine loop. Keep running until QuitEvent()"""
         self.running = True
         while self.running:
