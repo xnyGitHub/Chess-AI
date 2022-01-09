@@ -5,7 +5,7 @@ from src.engine.main import run
 
 
 @click.command()
-def training_mode():
+def training():
     """
     Make both moves for black and white. Training
     """

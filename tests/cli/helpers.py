@@ -11,7 +11,7 @@ Options:
   --help  Show this message and exit.
 
 Commands:
-  training-mode  Make both moves for black and white.
+  training  Make both moves for black and white.
 """
 
 
